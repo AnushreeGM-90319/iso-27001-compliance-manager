@@ -1,14 +1,22 @@
 from flask import Flask
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Import routes
+from routes.describe import describe_bp
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return "AI Service Running"
+# Register routes
+app.register_blueprint(describe_bp)
 
-@app.route('/health')
+# Health check
+@app.route("/health")
 def health():
-    return {"status": "OK"}
+    return {"status": "ok"}
 
+# Run server
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
