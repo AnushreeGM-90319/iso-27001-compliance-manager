@@ -8,7 +8,12 @@ def home():
 @app.route('/describe', methods=['POST'])
 @app.route('/test')
 def test():
-    user_input = "Explain AI in simple words"
+    user_input = request.args.get('text')
+
+    # ✅ validation
+    if not user_input:
+        return "Please provide text using ?text=your_input"
+
     response = get_groq_response(user_input)
     return response
 def describe():
