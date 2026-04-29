@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response, stream_with_context
 from services.groq_client import get_groq_response
 from datetime import datetime
 import json
 import logging
+import time
 
 app = Flask(__name__)
 
@@ -129,7 +130,36 @@ def generate_report():
             "message": str(e)
         }), 500
 
+@app.route('/generate-report-stream')
+def generate_report_stream():
+    user_input = request.args.get('text')
 
+    if not user_input:
+        return "Please provide text using ?text=your_input"
+
+    def generate():
+        try:
+            prompt = f"""
+            Generate a structured report for:
+            {user_input}
+            """
+
+            full_response = get_groq_response(prompt)
+
+            # Stream word-by-word (token simulation)
+            for word in full_response.split():
+                yield f"data: {word}\n\n"
+                time.sleep(0.03)
+
+            yield "data: [DONE]\n\n"
+
+        except Exception as e:
+            yield f"data: ERROR: {str(e)}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        content_type="text/event-stream"
+    )
 # -------------------------------
 # RUN APP
 # -------------------------------
