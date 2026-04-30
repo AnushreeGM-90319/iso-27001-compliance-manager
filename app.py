@@ -35,7 +35,63 @@ def test():
 
     response = get_groq_response(user_input)
     return response
+@app.route('/analyse-document', methods=['POST'])
+def analyse_document():
+    try:
+        data = request.get_json()
 
+        # ✅ validation
+        if not data or 'text' not in data:
+            return jsonify({"error": "Missing 'text' field"}), 400
+
+        user_input = data['text']
+
+        if user_input.strip() == "":
+            return jsonify({"error": "Text cannot be empty"}), 400
+
+        # 🧠 Prompt for structured output
+        prompt = f"""
+        Analyze the following document and extract key insights and risks.
+
+        Document:
+        {user_input}
+
+        Return output strictly in JSON format:
+        {{
+          "findings": [
+            {{
+              "type": "insight or risk",
+              "description": "brief explanation",
+              "severity": "low/medium/high"
+            }}
+          ]
+        }}
+        """
+
+        response = get_groq_response(prompt)
+
+        # 🔧 Try parsing JSON
+        try:
+            parsed = json.loads(response)
+            findings = parsed.get("findings", [])
+        except:
+            findings = [{
+                "type": "unknown",
+                "description": response,
+                "severity": "low"
+            }]
+
+        return jsonify({
+            "status": "success",
+            "findings": findings,
+            "generated_at": datetime.utcnow().isoformat()
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 # -------------------------------
 # DESCRIBE ENDPOINT
