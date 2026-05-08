@@ -1,5 +1,5 @@
 import os
-from sentence_transformers import SentenceTransformer
+from services.embedding_model import embedding_model
 import chromadb
 
 # -------------------------------
@@ -28,7 +28,7 @@ def chunk_text(text, chunk_size=500, overlap=50):
 # -------------------------------
 # STEP 3: Create Embeddings
 # -------------------------------
-model = SentenceTransformer('all-MiniLM-L6-v2')
+embeddings = embedding_model.encode(chunks)
 
 def create_embeddings(chunks):
     return model.encode(chunks)
