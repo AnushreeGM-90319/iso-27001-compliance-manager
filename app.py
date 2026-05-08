@@ -97,7 +97,61 @@ def analyse_document():
             "status": "error",
             "message": str(e)
         }), 500
+@app.route('/batch-process', methods=['POST'])
+def batch_process():
+    try:
+        data = request.get_json(silent=True)
 
+        # ✅ validate JSON
+        if not data:
+            return jsonify({
+                "error": "Request body must be JSON"
+            }), 400
+
+        # ✅ validate items field
+        if 'items' not in data:
+            return jsonify({
+                "error": "Missing 'items' field"
+            }), 400
+
+        items = data['items']
+
+        # ✅ validate list
+        if not isinstance(items, list):
+            return jsonify({
+                "error": "'items' must be a list"
+            }), 400
+
+        # ✅ limit max 20 items
+        if len(items) > 20:
+            return jsonify({
+                "error": "Maximum 20 items allowed"
+            }), 400
+
+        results = []
+
+        # ✅ process each item
+        for item in items:
+
+            # simulate processing delay
+            time.sleep(0.1)
+
+            results.append({
+                "input": item,
+                "processed_result": f"Processed: {item}"
+            })
+
+        return jsonify({
+            "status": "success",
+            "results": results,
+            "total_processed": len(results)
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 # -------------------------------
 # DESCRIBE ENDPOINT
 # -------------------------------
