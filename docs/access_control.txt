@@ -1,0 +1,1 @@
+Access control ensures that only authorized users can access systems and resources. Role-based access control improves security by assigning permissions based on job responsibilities.

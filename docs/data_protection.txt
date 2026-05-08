@@ -1,0 +1,1 @@
+Data protection ensures confidentiality, integrity, and availability of sensitive information through encryption, backups, and access restrictions.

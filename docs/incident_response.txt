@@ -1,0 +1,1 @@
+Incident response involves identifying, managing, and recovering from cybersecurity incidents. Organizations should maintain response plans and recovery procedures.

@@ -1,0 +1,1 @@
+Encryption converts sensitive information into unreadable formats to prevent unauthorized access during storage and transmission.

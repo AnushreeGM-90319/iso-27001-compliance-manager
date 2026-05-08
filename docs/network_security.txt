@@ -1,0 +1,1 @@
+Network security protects systems from unauthorized access, malware, and attacks through firewalls, IDS, VPNs, and segmentation.

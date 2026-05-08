@@ -1,0 +1,1 @@
+Business continuity planning ensures critical business functions continue during disruptions such as cyberattacks, disasters, or outages.
