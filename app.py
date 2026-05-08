@@ -38,7 +38,12 @@ def test():
 @app.route('/analyse-document', methods=['POST'])
 def analyse_document():
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True)
+
+        if not data:
+            return jsonify({
+                "error": "Request body must be JSON"
+            }), 400
 
         # ✅ validation
         if not data or 'text' not in data:
@@ -138,45 +143,64 @@ def describe():
 @app.route('/generate-report', methods=['POST'])
 def generate_report():
     try:
-        data = request.get_json()
+        # ✅ safely read JSON
+        data = request.get_json(silent=True)
 
-        if not data or 'text' not in data:
-            return jsonify({"error": "Missing 'text' field"}), 400
+        # ✅ check if request body exists
+        if not data:
+            return jsonify({
+                "error": "Request body must be JSON"
+            }), 400
+
+        # ✅ check text field
+        if 'text' not in data:
+            return jsonify({
+                "error": "Missing 'text' field"
+            }), 400
 
         user_input = data['text']
 
+        # ✅ empty text validation
         if user_input.strip() == "":
-            return jsonify({"error": "Text cannot be empty"}), 400
+            return jsonify({
+                "error": "Text cannot be empty"
+            }), 400
 
-        logging.info(f"Report input: {user_input}")
-
-        # Structured prompt
+        # ✅ AI prompt
         prompt = f"""
-        Based on the following input, generate a structured report in JSON format.
+        Generate a structured report for the following topic:
 
-        Input: {user_input}
+        {user_input}
 
-        Output JSON format:
-        {{
-          "title": "",
-          "executive_summary": "",
-          "overview": "",
-          "top_items": [],
-          "recommendations": []
-        }}
+        Return output in JSON format with:
+        - title
+        - executive_summary
+        - overview
+        - top_items
+        - recommendations
         """
 
+        # ✅ get AI response
         response = get_groq_response(prompt)
 
-        # Try parsing JSON
+        # ✅ try converting AI response to JSON
         try:
-            report_json = json.loads(response)
-        except:
-            report_json = {"raw_output": response}
+            report_data = json.loads(response)
 
+        except Exception:
+            # fallback if AI gives plain text
+            report_data = {
+                "title": "Generated Report",
+                "executive_summary": response,
+                "overview": response,
+                "top_items": [],
+                "recommendations": []
+            }
+
+        # ✅ final response
         return jsonify({
             "status": "success",
-            "report": report_json,
+            "report": report_data,
             "generated_at": datetime.utcnow().isoformat()
         })
 
